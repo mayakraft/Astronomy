@@ -6,14 +6,9 @@
 // reference:  http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf
 //   more information at http://iau-comm4.jpl.nasa.gov/XSChap8.pdf
 //
-
-
-// the format of this number is: centuries after the year 2000
-//float time = -.17;//.138767; // mid November 2013
-// float time = -499384800.000000 / 60.0 / 60.0 / 24.0 / 365.0 / 100.0;
-
-// time = (year-2000)/100 + day_of_the_year/36525
-// where day_of_the_year would be 42 for February 11th.
+// time in J2000 centuries:  (see J2000.h)
+//   time = (year-2000)/100 + day_of_the_year/36525
+//   where day_of_the_year would be 42 for February 11th.
 
 #include <math.h>
 
@@ -37,7 +32,7 @@ static double _elements[]= {0.38709927,    0.20563593,    7.00497902,   252.2503
                             5.20288700,    0.04838624,    1.30439695,    34.39644051,   14.72847983,  100.47390909,  //jupiter
                             9.53667594,    0.05386179,    2.48599187,    49.95424423,   92.59887831,  113.66242448,  //saturn
                             19.18916464,   0.04725744,    0.77263783,   313.23810451,  170.95427630,   74.01692503,  //uranus
-                            30.06992276,   0.00859048,    1.77004347,   -55.12002969,   44.96476227,  131.78422574,  //neptune
+                            30.06992276,   0.00859048,    1.77004347,   -55.12002969,   44.96476227,  131.78422574,  //neptune/
                             39.48211675,   0.24882730,   17.14001206,   238.92903833,  224.06891629,  110.30393684 };//pluto
 //                         AU/Cy         rad/Cy        deg/Cy        deg/Cy           deg/Cy       deg/Cy
 static double _rates[]= {0.00000037,   0.00001906,  -0.00594749, 149472.67411175,   0.16047689,  -0.12534081,  //mercury
@@ -49,7 +44,7 @@ static double _rates[]= {0.00000037,   0.00001906,  -0.00594749, 149472.67411175
                         -0.00196176,  -0.00004397,  -0.00242939,    428.48202785,   0.40805281,   0.04240589,  //uranus
                          0.00026291,   0.00005105,   0.00035372,    218.45945325,  -0.32241464,  -0.00508664,  //neptune
                         -0.00031596,   0.00005170,   0.00004818,    145.20780515,  -0.04062942,  -0.01183482 };//pluto
-
+//////////////////////////////
 	// step 1
 	// compute the value of each of that planet's six elements
 	double a = _elements[6*planet+0] + _rates[6*planet+0]*time;	// (au) semi_major_axis

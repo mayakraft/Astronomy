@@ -8,13 +8,18 @@ Keplerian Elements for Approximate Positions of the Major Planets
 
 positions valid for 1800 AD - 2050 AD
 
+
+[NASA JPL (sec 8.10)](http://iau-comm4.jpl.nasa.gov/XSChap8.pdf)
+
+[information on margin of error](http://ssd.jpl.nasa.gov/?planet_pos) 
+
 # stargaze.c
 
 **stargaze.c in development**
 
 these are the missing set of functions required to build stargazing apps on mobile devices
 
-![transform](https://raw.github.com/robbykraft/Stargaze/master/readme/transformation.png)
+![transform](https://raw.github.com/robbykraft/Stargaze/master/bin/transformation.png)
 
 **input:** your location on Earth, time, and day of year
 
