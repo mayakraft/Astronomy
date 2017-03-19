@@ -18,7 +18,7 @@ ifeq ($(OSTYPE),darwin)
 	LDFLAGS = -framework Carbon -Wno-deprecated
 endif
 
-$(EXE) : bin/example.c
+$(EXE) : examples/example.c
 	gcc -o bin/$@ $< $(CFLAGS) $(LDFLAGS)
 
 run :

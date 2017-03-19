@@ -1,4 +1,4 @@
-![transform](https://raw.githubusercontent.com/robbykraft/Astronomy/master/bin/transformation.png)
+![transform](https://raw.githubusercontent.com/robbykraft/Astronomy/master/images/transformation.png)
 
 # try it
 
@@ -29,7 +29,7 @@ Keplerian Elements for Approximate Positions of the Major Planets
 
 input: `date`
 
-output: `positions (X,Y,Z) for each planet`
+output: `positions (X,Y,Z, ecliptic coordinate system) for each planet`
 
 units: `astronomical units, origin at the sun, X axis aligned with the equinox`
 

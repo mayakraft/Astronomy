@@ -3,6 +3,7 @@
 #include "../J2000.h"
 #include "../sidereal.h"
 #include "../kepler.h"
+#include "../stargaze.h"
 
 int main(){
 
@@ -75,62 +76,73 @@ printf("\n╚══════════════════════�
 	int planet = 2;  // earth
 	printf(" LONGITUDE             TIME               ORBIT          ROTATION\n");
 
-printf("\nLongitudes\n");
+		// year = 2016;
+		// month = 12;
+		// day = 21;
+		// hour = 23;
+		// minute = 56;
+		// second = 5;
+
+printf("\nchange in Longitude\n");
 	for(int i = 180; i > -180; i-=10){
 		longitude = i;
 		year = 2016;
 		month = 12;
 		day = 21;
-		hour = 0;
-		minute = 0;
-		double J2000day = J2000DaysFromUTCTime(year, month, day, hour, minute, 0);
+		hour = 16;
+		minute = 8;
+		second = 0;
+		double J2000day = J2000DaysFromUTCTime(year, month, day, hour, minute, second);
 		double sidereal = localMeanSiderealTime(J2000day, longitude);
 		double apparent = apparentSiderealTime(J2000day);
 		calculateLocationOfPlanet(planet, J2000CenturiesFromJ2000Days(J2000day), &x, &y, &z);
-		printf("%s %4d° %9s %2d, %d (%2d:%02d)   %4d°   SIDE:%6.2f   APPR:%.5f\n", planetNames[planet], longitude, monthNames[month], day, year, hour, minute, (int)(atan2(y,x)/M_PI*180), sidereal, apparent);
+		printf("%s %4d° %9s %2d, %d (%2d:%02d)   %7.2f°   SIDE:%6.2f   APPR:%.5f\n", planetNames[planet], longitude, monthNames[month], day, year, hour, minute, (atan2(y,x)/M_PI*180), sidereal, apparent);
 	}
-printf("\nOne Day\n");
+printf("\nchange in hour\n");
 	for(int i = 0; i < 24; i++){
 		longitude = 0;
 		year = 2016;
 		month = 12;
 		day = 21;
 		hour = i;
-		minute = 0;
-		double J2000day = J2000DaysFromUTCTime(year, month, day, hour, minute, 0);
+		minute = 8;
+		second = 0;
+		double J2000day = J2000DaysFromUTCTime(year, month, day, hour, minute, second);
 		double sidereal = greenwichMeanSiderealTime(J2000day);
 		double apparent = apparentSiderealTime(J2000day);
 		calculateLocationOfPlanet(planet, J2000CenturiesFromJ2000Days(J2000day), &x, &y, &z);
-		printf("%s %4d° %9s %2d, %d (%2d:%02d)   %4d°   SIDE:%6.2f   APPR:%.5f\n", planetNames[planet], longitude, monthNames[month], day, year, hour, minute, (int)(atan2(y,x)/M_PI*180), sidereal, apparent);
+		printf("%s %4d° %9s %2d, %d (%2d:%02d)   %7.2f°   SIDE:%6.2f   APPR:%.5f\n", planetNames[planet], longitude, monthNames[month], day, year, hour, minute, (atan2(y,x)/M_PI*180), sidereal, apparent);
 	}
 
-printf("\nOne Month\n");
+printf("\nchange in day\n");
 	for(int i = 0; i < 30; i++){
 		longitude = 0;
 		year = 2016;
 		month = 12;
 		day = i;
-		hour = 0;
-		minute = 0;
-		double J2000day = J2000DaysFromUTCTime(year, month, day, hour, minute, 0);
+		hour = 16;
+		minute = 8;
+		second = 0;
+		double J2000day = J2000DaysFromUTCTime(year, month, day, hour, minute, second);
 		double sidereal = greenwichMeanSiderealTime(J2000day);
 		double apparent = apparentSiderealTime(J2000day);
 		calculateLocationOfPlanet(planet, J2000CenturiesFromJ2000Days(J2000day), &x, &y, &z);
-		printf("%s %4d° %9s %2d, %d (%2d:%02d)   %4d°   SIDE:%6.2f   APPR:%.5f\n", planetNames[planet], longitude, monthNames[month], day, year, hour, minute, (int)(atan2(y,x)/M_PI*180), sidereal, apparent);
+		printf("%s %4d° %9s %2d, %d (%2d:%02d)   %7.2f°   SIDE:%6.2f   APPR:%.5f\n", planetNames[planet], longitude, monthNames[month], day, year, hour, minute, (atan2(y,x)/M_PI*180), sidereal, apparent);
 	}
 
-printf("\nOne Year\n");
+printf("\nchange in month\n");
 	for(int i = 1; i < 13; i++){
 		year = 2016;
 		month = i;
-		day = 22;
-		hour = 0;
-		minute = 0;
-		double J2000day = J2000DaysFromUTCTime(year, month, day, hour, minute, 0);
+		day = 21;
+		hour = 16;
+		minute = 8;
+		second = 0;
+		double J2000day = J2000DaysFromUTCTime(year, month, day, hour, minute, second);
 		double sidereal = greenwichMeanSiderealTime(J2000day);
 		double apparent = apparentSiderealTime(J2000day);
 		calculateLocationOfPlanet(planet, J2000CenturiesFromJ2000Days(J2000day), &x, &y, &z);
-		printf("%s %4d° %9s %2d, %d (%2d:%02d)   %4d°   SIDE:%6.2f   APPR:%.5f\n", planetNames[planet], longitude, monthNames[month], day, year, hour, minute, (int)(atan2(y,x)/M_PI*180), sidereal, apparent);
+		printf("%s %4d° %9s %2d, %d (%2d:%02d)   %7.2f°   SIDE:%6.2f   APPR:%.5f\n", planetNames[planet], longitude, monthNames[month], day, year, hour, minute, (atan2(y,x)/M_PI*180), sidereal, apparent);
 	}
 
 /*	for(int i = 0; i < 12; i++){
@@ -157,6 +169,15 @@ printf("\nOne Year\n");
 		printf("(2015/%d/%d %d:%d)\t(%f)\t%f, %f\n",month, day, hour, minute, J2000, sidereal, apparent);
 	}
 */
+
+
+printf("\n╔══════════════════════════════════╗");
+printf("\n║     CONVERT REFERENCE FRAMES     ║");
+printf("\n╚══════════════════════════════════╝\n");
+
+printf("\nCelestial Orientation (in progress):\n");
+
+	celestialOrientation(40, -97.73, 2016, 03, 05, 0, 0, 0);
 
 	return 0;
 }

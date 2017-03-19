@@ -6,6 +6,9 @@
 //
 // robby kraft, mit open source software license
 
+#ifndef ASTRONOMY_J2000_H
+#define ASTRONOMY_J2000_H
+
 #include <time.h>
 #include <math.h>
 
@@ -72,12 +75,15 @@ double J2000SecondsFromUTCTime(int year, int month, int day, int hour, int minut
 }
 double J2000CenturiesFromUTCTime(int year, int month, int day, int hour, int minute, int second){
 	return J2000CenturiesFromJ2000Days(J2000DaysFromUTCTime(year, month, day, hour, minute, second));
-}// time since january 1st, at 12:00 (noon)
+}
+
+
+// time since january 1st, at 12:00 (noon)
 // date input is human-readable: month and day are one-based indexing (March 1st is 03,01)
-void UTCTimeFromJ2000Days(double J2000){//, int *year, int *month, int *day, int *hour, int *minute, int *second){
-	double fractionalPart = fmod(J2000, 1);
-	int wholePart = J2000 - fractionalPart;
-	printf("%d  %f\n", wholePart, fractionalPart);	
+// void UTCTimeFromJ2000Days(double J2000){//, int *year, int *month, int *day, int *hour, int *minute, int *second){
+	// double fractionalPart = fmod(J2000, 1);
+	// int wholePart = J2000 - fractionalPart;
+	// printf("%d  %f\n", wholePart, fractionalPart);	
 
 	// double J2000 = 367 * year 
 	//                - floor(7 * (year+floor((month+9)/12.0) ) / 4.0) 
@@ -101,12 +107,12 @@ void UTCTimeFromJ2000Days(double J2000){//, int *year, int *month, int *day, int
 	// *minute = GMT.tm_min;       /* minutes, range 0 to 59           */
 	// *second = GMT.tm_sec;       /* seconds,  range 0 to 59          */
 
-	double year = 2000 + (J2000-2000)/365.25;
-
-	printf("\nYear:%f\n",year);
-
-}
+	// double year = 2000 + (J2000-2000)/365.25;
+	// printf("\nYear:%f\n",year);
+// }
 
 // double daysSinceJ2000(int timeZone, int year, int month, int day, int hour, int minute, int second){
 // 	return UTCDaysSinceJ2000(year, month, day, hour + timeZone, minute, second);
 // }
+
+#endif

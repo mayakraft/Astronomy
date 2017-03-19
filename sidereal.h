@@ -3,6 +3,9 @@
 // robby kraft
 // mit open source software license
 
+#ifndef ASTRONOMY_SIDEREAL_H
+#define ASTRONOMY_SIDEREAL_H
+
 #import <math.h>
 
 // date units in J2000 days. see:J2000.h
@@ -22,7 +25,7 @@ double greenwichMeanSiderealTime(double J2000Day){
 	// not dynamical time, known as TDT. Formulas used to predict the
 	// positions of planets, the Moon, eclipses and so on use TDT. 
 
-// precision to about 5 decimal places: error 0.000001
+	// precision to about 5 decimal places: error 0.000001
 	return mod360(280.46061837 + 360.98564736629 * J2000Day + LTR);
 }
 
@@ -51,3 +54,5 @@ double apparentSiderealTime(double J2000Day){
 	double correction = dp * cos(e) / 3600.0;
 	return correction;
 }
+
+#endif

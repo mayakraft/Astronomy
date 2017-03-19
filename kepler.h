@@ -10,6 +10,9 @@
 //   time = (year-2000)/100 + day_of_the_year/36525
 //   where day_of_the_year would be 42 for February 11th.
 
+#ifndef ASTRONOMY_KEPLER_H
+#define ASTRONOMY_KEPLER_H
+
 #include <math.h>
 
 #define PI 3.141592653589793
@@ -82,3 +85,5 @@ static double _rates[]= {0.00000037,   0.00001906,  -0.00594749, 149472.67411175
 	*planet_y = ( cos(omega)*sin(OMEGA) + sin(omega)*cos(OMEGA)*cos(I) )*x0 + ( -sin(omega)*sin(OMEGA) + cos(omega)*cos(OMEGA)*cos(I) )*y0;
 	*planet_z = (			sin(omega)*sin(I)			 )*x0 + (			 cos(omega)*sin(I)			 )*y0;
 }
+
+#endif
