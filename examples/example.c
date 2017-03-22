@@ -175,9 +175,24 @@ printf("\n╔══════════════════════�
 printf("\n║     CONVERT REFERENCE FRAMES     ║");
 printf("\n╚══════════════════════════════════╝\n");
 
-printf("\nCelestial Orientation (in progress):\n");
+printf("\nExample 1 from Practical Astronomy with your Calculator:\n");
 
-	celestialOrientation(40, -97.73, 2016, 03, 05, 0, 0, 0);
+	// what are the Azimuth and Altitude of a planet whose ecliptic coordinates are
+	// longitude: 97 deg 38 min 17.228 sec
+	// latitude: -17 deg 51 min 28.688 sec
+	// for an observer at geographic latitude: 52 deg 10 min 31.0 sec
+	// at local sidereal time: 5h 9m 21.103s ?
+
+	double observerLat = 52.175278;  // degrees
+	double eclipticLat = 97.638119;  // degrees
+	double eclipticLon = -17.857969; // degrees
+	double siderealTime = 5.155862;  // hours
+	double STDeg = siderealTime*15;  // degrees
+
+	double siderealDeg = siderealTime * 15; // degrees
+
+	// celestialOrientationWithDate(40, -97.73, 2016, 03, 05, 0, 0, 0);
+	eclipticToHorizontal(eclipticLat, eclipticLon, observerLat, siderealDeg);
 
 	return 0;
 }
