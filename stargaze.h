@@ -9,6 +9,8 @@
 #define R2D 57.295779513082321  // radians to degrees
 #define EARTH_AX_DEG 23.446236  // Earth's axial tilt, in degrees
 // MATH
+#ifndef LINEAR_ALGEBRA_MATH
+#define LINEAR_ALGEBRA_MATH
 // Rotate X
 void makeMat3XRot(float *m, float angle){
 	m[0] = 1;   m[1] = 0;           m[2] = 0;
@@ -28,10 +30,10 @@ void makeMat3ZRot(float *m, float angle){
 	m[6] = 0;           m[7] = 0;           m[8] = 1;
 }
 void mat3ToMat4(float *in, float *result){
-	result[0] = in[0];	result[1] = in[1];	result[2] = in[2];	result[3] = 0.0f;
-	result[4] = in[3];	result[5] = in[4];	result[6] = in[5];	result[7] = 0.0f;
-	result[8] = in[6];	result[9] = in[7];	result[10] = in[8];	result[11] = 0.0f;
-	result[12] = 0.0f;	result[13] = 0.0f;	result[14] = 0.0f;	result[15] = 1.0f;
+	result[0] = in[0];  result[1] = in[1];  result[2] = in[2];  result[3] = 0.0f;
+	result[4] = in[3];  result[5] = in[4];  result[6] = in[5];  result[7] = 0.0f;
+	result[8] = in[6];  result[9] = in[7];  result[10] = in[8]; result[11] = 0.0f;
+	result[12] = 0.0f;  result[13] = 0.0f;  result[14] = 0.0f;  result[15] = 1.0f;
 }
 // multiply two 3x3 matrices, a and b, store result into c
 void mat3x3Mult(const float* a, const float* b, float* c) {
@@ -54,6 +56,8 @@ void mat3Vec3Mult(const float m[9], const float v[3], float result[3]){
 void printfVec3(float *v){ printf("(%f)\n(%f)\n(%f)\n", v[0], v[1], v[2]); }
 void printfMat3(float *m){ printf("[%f %f %f]\n[%f %f %f]\n[%f %f %f]\n", m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]); }
 void printfMat4(float *m){ printf("[%f %f %f %f]\n[%f %f %f %f]\n[%f %f %f %f]\n[%f %f %f %f]\n", m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8], m[9], m[10], m[1], m[12], m[13], m[14], m[15]); }
+
+#endif
 
 ///////////////////////////////////////////////////////////////
 // source = Practical Astronomy with your Calculator
