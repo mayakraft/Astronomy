@@ -191,8 +191,14 @@ printf("\nExample 1 from Practical Astronomy with your Calculator:\n");
 
 	double siderealDeg = siderealTime * 15; // degrees
 
+	float azimuth, altitude;
+
 	// celestialOrientationWithDate(40, -97.73, 2016, 03, 05, 0, 0, 0);
-	eclipticToHorizontal(eclipticLat, eclipticLon, observerLat, siderealDeg);
+	eclipticToHorizontal(eclipticLat, eclipticLon, observerLat, siderealDeg, &azimuth, &altitude);
+	printf("What are the Azimuth and Altitude of a planet whose ecliptic coordinates are\nLat:%f deg\nLon:%f deg\n", eclipticLat, eclipticLon);
+	printf("for an observer at geographic\nLat:%f deg\nSidereal Time:%f hrs\n", observerLat, siderealTime);
+	printf("\nFinal Answer:\nAzimuth: %f\nAltitude: %f\n", azimuth, altitude);
+
 
 	return 0;
 }

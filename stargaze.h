@@ -4,11 +4,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-// MATH
-
-#define D2R 0.01745329251994 // degrees to radians
+// DEFS
+#define D2R 0.01745329251994    // degrees to radians
+#define R2D 57.295779513082321  // radians to degrees
 #define EARTH_AX_DEG 23.446236  // Earth's axial tilt, in degrees
-
+// MATH
 // Rotate X
 void makeMat3XRot(float *m, float angle){
 	m[0] = 1;   m[1] = 0;           m[2] = 0;
@@ -45,18 +45,19 @@ void mat3x3Mult(const float* a, const float* b, float* c) {
 	c[7] = a[6] * b[1] + a[7] * b[4] + a[8] * b[7];
 	c[8] = a[6] * b[2] + a[7] * b[5] + a[8] * b[8];
 }
+// multiply one 3x3 matrices with one 3x vector, result is a 3x vector
 void mat3Vec3Mult(const float m[9], const float v[3], float result[3]){
 	result[0] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2];
 	result[1] = m[3] * v[0] + m[4] * v[1] + m[5] * v[2];
 	result[2] = m[6] * v[0] + m[7] * v[1] + m[8] * v[2];
 }
-void printfVec3(float *v){ printf("%f %f %f\n", v[0], v[1], v[2]); }
-void printfMat3(float *m){ printf("%f %f %f\n%f %f %f\n%f %f %f\n", m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]); }
-void printfMat4(float *m){ printf("%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n%f %f %f %f\n", m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8], m[9], m[10], m[1], m[12], m[13], m[14], m[15]); }
+void printfVec3(float *v){ printf("(%f)\n(%f)\n(%f)\n", v[0], v[1], v[2]); }
+void printfMat3(float *m){ printf("[%f %f %f]\n[%f %f %f]\n[%f %f %f]\n", m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]); }
+void printfMat4(float *m){ printf("[%f %f %f %f]\n[%f %f %f %f]\n[%f %f %f %f]\n[%f %f %f %f]\n", m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8], m[9], m[10], m[1], m[12], m[13], m[14], m[15]); }
 
 ///////////////////////////////////////////////////////////////
-// Attempt 2: source=Practical Astronomy with your Calculator
-//                   by Peter Duffett-Smith
+// source = Practical Astronomy with your Calculator
+//          by Peter Duffett-Smith
 
 // Matrix C, in the book
 void generateAxialTiltMatrix(float* result){
@@ -86,7 +87,7 @@ void generateSiderealTimeMatrix(float *result, float localSiderealTime){
 // (b): hour angle and declination
 	// localSiderealTime must be in degrees, 0deg to 360deg
 	// if it's in hours: multiply by 15. example: 18hrs * 15 = 270deg
-	float angle = localSiderealTime / 180.0 * M_PI; // convert to radians
+	float angle = localSiderealTime * D2R; // convert to radians
 	result[0] = cos(angle);  result[1] = sin(angle);   result[2] = 0;
 	result[3] = sin(angle);  result[4] = -cos(angle);  result[5] = 0;
 	result[6] = 0;           result[7] = 0;            result[8] = 1;
@@ -97,7 +98,7 @@ void generateGeographicLatitudeMatrix(float *result, float latitude){
 // for multiplying against one and getting the other. works either way.
 // (a): azimuth and altitude
 // (b): hour angle and declination
-	float radians = latitude / 180.0 * M_PI;
+	float radians = latitude * D2R;
 	result[0] = -sin(radians); result[1] = 0;   result[2] = cos(radians);
 	result[3] = 0;             result[4] = -1;  result[5] = 0;
 	result[6] = cos(radians);  result[7] = 0;   result[8] = sin(radians);
@@ -115,22 +116,54 @@ void extractCoordinatesFromColumnVector(const float v[3], float *a, float *b){
 }
 
 ///////////////////////////////////////////////////////////////
-// Attempt 1: by inference, without any sources
+// Generalized functions
 
-void rotation(float degrees, float x, float y, float z){
+void eclipticToHorizontal(float eclipticLat, float eclipticLon, float observerLat, float sidereal, float *azimuth, float *altitude){
+	// last 2 arguments are the result: azimuth and altitude
 
+	// generate 3 orientation matrices
+	float m1[9], m2[9], m3[9];
+	generateGeographicLatitudeMatrix(m1, observerLat);
+	generateSiderealTimeMatrix(m2, sidereal);
+	generateAxialTiltMatrixPrime(m3);
+	// multiply 3 matrices together
+	float mmult1[9], mmult2[9];
+	mat3x3Mult(m2, m3, mmult1);
+	mat3x3Mult(m1, mmult1, mmult2);
+	// multiply input by orientation matrix
+	float v[3], answer[3];
+	generateColumnVector(eclipticLat * D2R, eclipticLon * D2R, v);
+	mat3Vec3Mult(mmult2, v, answer);
+	extractCoordinatesFromColumnVector(answer, azimuth, altitude);
+	*azimuth *= R2D;
+	*altitude *= R2D;
+
+	// if(0){
+	// 	printf("\nGeographic Latitude Matrix (latitude: %f):\n",observerLat);
+	// 	printfMat3(m1);
+	// 	printf("\nSidereal Time Matrix (sidereal: %f):\n",sidereal);
+	// 	printfMat3(m2);
+	// 	printf("\nAxial Tilt Matrix:\n");
+	// 	printfMat3(m3);
+	// 	printf("\nProduct of first 2 Matrices:\n");
+	// 	printfMat3(mmult1);
+	// 	printf("\nProduct of all 3 Matrices:\n");
+	// 	printfMat3(mmult2);
+	// 	printf("\nColumn Vector:\n");
+	// 	printfVec3(v);
+	// 	printf("\nFinal Vector:\n");
+	// 	printfVec3(answer);
+	// 	printf("\nFinal Answer:\nAzimuth: %f\nAltitude: %f\n", *azimuth, *altitude);		
+	// }
 }
 
-float axialTiltAngle(int month, int day, int hour, int second){
-	return 0;
+void eclipticToHorizontalWithDate(float eclipticLat, float eclipticLon, float observerLat, float observerLon, int year, int month, int day, int hour, int minute, int second, float *azimuth, float *altitude){
+	// last 2 arguments are the result: azimuth and altitude
+	double J2000 = J2000DaysFromUTCTime(year, month, day, hour, minute, second);
+	double sidereal = localMeanSiderealTime(J2000, observerLon);
+	eclipticToHorizontal(eclipticLon, eclipticLat, observerLat, sidereal, azimuth, altitude);
 }
 
-float earthRotation(){
-	float sidereal = 0.0;
-	rotation(sidereal, 0, 0, 1);
-	rotation(EARTH_AX_DEG, 1, 0 ,0);
-	return 0.0f;
-} 
 
 //90 degree rotation around Y (second axis)
 //180 degree rotation around Z (third axis)
@@ -145,71 +178,3 @@ float phoneToHorizonal4x4[16] = {
 	1.0f, 0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.0f,1.0f, 
 };
-
-// Matrix4MakeRotation((latitude), 0, 1, 0);   // first latitude
-// GLKMatrix4Rotate(matrix, longitude, 0, 0, 1);  // the longitude
-void makeLatitudeLongitudeDisplacementMatrix(float *m, float latitude, float longitude){
-	float m1[9], m2[9];
-	makeMat3YRot(m1, latitude*D2R);
-	makeMat3ZRot(m2, longitude*D2R);
-	mat3x3Mult(m1, m2, m);
-
-	// m[0] = cosf(latitude*D2R)*cosf(longitude*D2R);      m[1] = sinf(longitude*D2R);     m[2] = -sinf(latitude*D2R)*cosf(longitude*D2R);
-	// m[3] = cosf(latitude*D2R)*-sinf(longitude*D2R);     m[4] = cosf(longitude*D2R);     m[5] = -sinf(latitude*D2R)*-sinf(longitude*D2R);
-	// m[6] = sinf(latitude*D2R);                          m[7] = 0.0f;                    m[8] = cosf(latitude*D2R);
-}
-
-
-void horizonalOrientation(float latitude, float longitude){
-
-}
-
-void eclipticToHorizontal(float eclipticLat, float eclipticLon, float observerLat, float sidereal){
-	float m1[9], m2[9], m3[9];
-	generateGeographicLatitudeMatrix(m1, observerLat);
-	generateSiderealTimeMatrix(m2, sidereal);
-	generateAxialTiltMatrixPrime(m3);
-
-	float mmult1[9], mmult2[9];
-	mat3x3Mult(m2, m3, mmult1);
-	mat3x3Mult(m1, mmult1, mmult2);
-
-	float v[3], answer[3];
-	float azimuth, altitude;
-	generateColumnVector(eclipticLat / 180.0 * M_PI, eclipticLon / 180.0 * M_PI, v);
-	mat3Vec3Mult(mmult2, v, answer);
-	extractCoordinatesFromColumnVector(answer, &azimuth, &altitude);
-	azimuth = azimuth * 180.0 / M_PI;
-	altitude = altitude * 180.0 / M_PI;
-
-	printf("\nGeographic Latitude Matrix (latitude: %f):\n",observerLat);
-	printfMat3(m1);
-	printf("\nSidereal Time Matrix (sidereal: %f):\n",sidereal);
-	printfMat3(m2);
-	printf("\nAxial Tilt Matrix:\n");
-	printfMat3(m3);
-	printf("\nProduct of first 2 Matrices:\n");
-	printfMat3(mmult1);
-	printf("\nProduct of all 3 Matrices:\n");
-	printfMat3(mmult2);
-	printf("\nColumn Vector:\n");
-	printfVec3(v);
-	printf("\nFinal Vector:\n");
-	printfVec3(answer);
-	printf("\nFinal Answer:\nAzimuth: %f\nAltitude: %f\n", azimuth, altitude);
-
-	// printf("Sidereal: %f\n", sidereal);
-	// float *r = malloc(sizeof(float) * 9);
-	// makeLatitudeLongitudeDisplacementMatrix(r, latitude, longitude);
-	// printfMat3(r);
-	// return r;
-}
-
-// your displacement from 0°N, 0°E, in the Gulf of Guinea off the coast of Africa, expressed a Rotation matrix.
-void eclipticToHorizontalWithDate(float eclipticLat, float eclipticLon, float observerLat, float observerLon, int year, int month, int day, int hour, int minute, int second){
-
-	double J2000 = J2000DaysFromUTCTime(year, month, day, hour, minute, second);
-	// double sidereal = greenwichMeanSiderealTime(J2000);
-	double sidereal = localMeanSiderealTime(J2000, observerLon);
-	eclipticToHorizontal(eclipticLon, eclipticLat, observerLat, sidereal);
-}
