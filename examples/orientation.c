@@ -4,9 +4,8 @@
 void drawUnitGimbal(float red, float green, float blue);
 void drawWorldAxes();
 
-float orientationMatrix[16];
 float axialTiltMatrix[9];
-float geographicLatMatrix[9];
+float axialTiltMatrixPrime[9];
 
 float observerLat = 18.45;  // degrees
 float observerLon = -66.0;  // degrees
@@ -17,12 +16,19 @@ float observerLon = -66.0;  // degrees
 // double siderealDeg = siderealTime * 15; // degrees
 // eclipticToHorizontal(eclipticLat, eclipticLon, observerLat, siderealDeg, &azimuth, &altitude);
 
+int year = 2016;
+int month = 12;
+int day = 21;
+int hour = 0;
+int minute = 0;
+int second = 0;
+
 void setup(){
 	emptyPerspective();
 	GROUND = 0;
 	GRID = 0;
-	setMat4Identity(orientationMatrix);
-	generateAxialTiltMatrixPrime(axialTiltMatrix);
+	generateAxialTiltMatrix(axialTiltMatrix);
+	generateAxialTiltMatrixPrime(axialTiltMatrixPrime);
 }
 void update(){
 	if(keyboard[']']){
@@ -30,103 +36,124 @@ void update(){
 	} if(keyboard['[']){
 		observerLon -= 0.5;
 	}
-
-	float siderealMatrix[9];
-	double J2000 = J2000DaysFromUTCNow();
-	double sidereal = localMeanSiderealTime(J2000, observerLon);
-	generateSiderealTimeMatrix(siderealMatrix, sidereal);
-	// multiply matrices together
-	float matrixProduct[9];
-	mat3x3Mult(siderealMatrix, axialTiltMatrix, matrixProduct);
-
-	generateGeographicLatitudeMatrix(geographicLatMatrix, observerLat);
-	// convert astronomy matrix to OpenGL matrix
-	mat3ToMat4(siderealMatrix, orientationMatrix);
 }
 
 void draw3D(){
-	// glPushMatrix();
-		// glScalef(5.0, 5.0, 5.0);
-	// glPopMatrix();
 
 	glPushMatrix();
 	float sp = 4;
 
 // TOP ROW
-		// glPushMatrix();
-		// 	glTranslatef(-sp, sp, 0);
-		// 	glRotatef(-lookOrientation[1], 1, 0, 0);
-		// 	glRotatef(-lookOrientation[0], 0, 1, 0);
-		// 	drawUnitGimbal(1.0, 1.0, 1.0);
-		// glPopMatrix();
-
-		// glPushMatrix();
-		// 	glTranslatef(0, sp, 0);
-		// 	glRotatef(-lookOrientation[1], 1, 0, 0);
-		// 	glRotatef(-lookOrientation[0], 0, 1, 0);
-		// 	drawUnitGimbal(1.0, 1.0, 1.0);
-		// glPopMatrix();
-
-		// glPushMatrix();
-		// 	glTranslatef(sp, sp, 0);
-		// 	glRotatef(-lookOrientation[1], 1, 0, 0);
-		// 	glRotatef(-lookOrientation[0], 0, 1, 0);
-		// 	drawUnitGimbal(1.0, 1.0, 1.0);
-		// glPopMatrix();
-
-// MIDDLE ROW
-
 		glPushMatrix();
-			glTranslatef(-sp, 0, 0);
+			glTranslatef(-sp, sp*0.5, 0);
+			text("Earth axial tilt", -0.8, -1.6, 0);
+			text("blue=prime", -0.8, -1.8, 0);
+			text("rotate around X", -0.8, -2.0, 0);
 			glRotatef(-90, 1, 0, 0);
 			glRotatef(-lookOrientation[1], 1, 0, 0);
 			glRotatef(-lookOrientation[0], 0, 0, 1);
-			drawUnitGimbal(1.0, 1.0, 1.0);
 			label3DAxes(1);
+			drawUnitGimbal(0.5, 0.5, 0.5);
+			glPushMatrix();
+				float axialTilt16[16];
+				mat3ToMat4(axialTiltMatrix, axialTilt16);
+				glMultMatrixf(axialTilt16);
+				drawUnitGimbal(1.0, 0.0, 0.0);
+			glPopMatrix();
+			glPushMatrix();
+				float axialTiltPrime16[16];
+				mat3ToMat4(axialTiltMatrixPrime, axialTiltPrime16);
+				glMultMatrixf(axialTiltPrime16);
+				drawUnitGimbal(0.3, 0.3, 1.0);
+			glPopMatrix();
 		glPopMatrix();
 
 		glPushMatrix();
+			glTranslatef(0, sp*0.5, 0);
+			text("Sidereal Time + Longitude", -1.0, -1.6, 0);
+			text("Now time", -0.8, -1.8, 0);
 			glRotatef(-90, 1, 0, 0);
 			glRotatef(-lookOrientation[1], 1, 0, 0);
 			glRotatef(-lookOrientation[0], 0, 0, 1);
-			drawUnitGimbal(1.0, 1.0, 1.0);
-			glMultMatrixf(orientationMatrix);
-			drawUnitGimbal(0.5, 0.5, 1.0);
+			drawUnitGimbal(0.5, 0.5, 0.5);
+			glPushMatrix();
+				float topCenterMatrix[16];
+				float siderealNowMatrix[9];
+				double J2000Now = J2000DaysFromUTCNow();
+				double siderealNow = localMeanSiderealTime(J2000Now, observerLon);
+				generateSiderealTimeMatrix(siderealNowMatrix, siderealNow);
+				mat3ToMat4(siderealNowMatrix, topCenterMatrix);
+				glMultMatrixf(topCenterMatrix);
+				drawUnitGimbal(0.3, 0.3, 1.0);
+			glPopMatrix();
 		glPopMatrix();
 
 		glPushMatrix();
-			glTranslatef(sp, 0, 0);
+			glTranslatef(sp, sp*0.5, 0);
 			glRotatef(-90, 1, 0, 0);
 			glRotatef(-lookOrientation[1], 1, 0, 0);
 			glRotatef(-lookOrientation[0], 0, 0, 1);
-			drawUnitGimbal(1.0, 1.0, 1.0);
+			drawUnitGimbal(0.5, 0.5, 0.5);
+			float geographicLatMatrix[9];
+			generateGeographicLatitudeMatrix(geographicLatMatrix, observerLat);
+			glPushMatrix();
+				float leftCenterMatrix[16];
+				float siderealDateMatrix[9];
+				double J2000Time = J2000DaysFromUTCTime(year, month, day, hour, minute, second);
+				double siderealDate = localMeanSiderealTime(J2000Time, observerLon);
+				generateSiderealTimeMatrix(siderealDateMatrix, siderealDate);
+				mat3ToMat4(siderealDateMatrix, leftCenterMatrix);
+				glMultMatrixf(leftCenterMatrix);
+				drawUnitGimbal(0.3, 0.3, 1.0);
+			glPopMatrix();
+		glPopMatrix();
+
+// BOTTOM ROW
+
+		glPushMatrix();
+			glTranslatef(-sp, -sp*0.5, 0);
+			// text("Earth", -1.0, 1.6, 0);
+			glRotatef(-90, 1, 0, 0);
+			glRotatef(-lookOrientation[1], 1, 0, 0);
+			glRotatef(-lookOrientation[0], 0, 0, 1);
+			label3DAxes(1);
+			drawUnitGimbal(0.5, 0.5, 0.5);
+		glPopMatrix();
+
+		glPushMatrix();
+			glTranslatef(0, -sp*0.5, 0);
+			text("Sidereal Time + Longitude", -1.0, -1.6, 0);
+			text("rotate around Z", -0.8, -1.8, 0);
+			glRotatef(-90, 1, 0, 0);
+			glRotatef(-lookOrientation[1], 1, 0, 0);
+			glRotatef(-lookOrientation[0], 0, 0, 1);
+			drawUnitGimbal(0.5, 0.5, 0.5);
+			glPushMatrix();
+				float orientationMatrix[16];
+				float siderealMatrix[9];
+				double J2000 = J2000DaysFromUTCNow();
+				double sidereal = localMeanSiderealTime(J2000, observerLon);
+				generateSiderealTimeMatrix(siderealMatrix, sidereal);
+				// multiply matrices together
+				float matrixProduct[9];
+				mat3x3Mult(siderealMatrix, axialTiltMatrix, matrixProduct);
+				mat3ToMat4(siderealMatrix, orientationMatrix);
+				glMultMatrixf(orientationMatrix);
+				drawUnitGimbal(0.3, 0.3, 1.0);
+			glPopMatrix();
+		glPopMatrix();
+
+		glPushMatrix();
+			glTranslatef(sp, -sp*0.5, 0);
+			glRotatef(-90, 1, 0, 0);
+			glRotatef(-lookOrientation[1], 1, 0, 0);
+			glRotatef(-lookOrientation[0], 0, 0, 1);
+			drawUnitGimbal(0.5, 0.5, 0.5);
 			float orient2[16];
 			mat3ToMat4(geographicLatMatrix, orient2);
 			glMultMatrixf(orient2);
 			drawUnitGimbal(1.0, 0.0, 0.0);
 		glPopMatrix();
-
-// BOTTOM ROW
-		// glPushMatrix();
-		// 	glTranslatef(-sp, -sp, 0);
-		// 	glRotatef(-lookOrientation[1], 1, 0, 0);
-		// 	glRotatef(-lookOrientation[0], 0, 1, 0);
-		// 	drawUnitGimbal(1.0, 1.0, 1.0);
-		// glPopMatrix();
-
-		// glPushMatrix();
-		// 	glTranslatef(0, -sp, 0);
-		// 	glRotatef(-lookOrientation[1], 1, 0, 0);
-		// 	glRotatef(-lookOrientation[0], 0, 1, 0);
-		// 	drawUnitGimbal(1.0, 1.0, 1.0);
-		// glPopMatrix();
-
-		// glPushMatrix();
-		// 	glTranslatef(sp, -sp, 0);
-		// 	glRotatef(-lookOrientation[1], 1, 0, 0);
-		// 	glRotatef(-lookOrientation[0], 0, 1, 0);
-		// 	drawUnitGimbal(1.0, 1.0, 1.0);
-		// glPopMatrix();
 
 	glPopMatrix();
 
@@ -137,8 +164,32 @@ void draw2D(){
 	char string[35];
 	sprintf(string, "Lat:%.2f, Lon:%.2f", observerLat, observerLon);   
 	text(string, 0, 20, 0);
+	char dateString[35];
+	sprintf(dateString, "%d %d-%d %02d:%02d", year, month, day, hour, minute);
+	text(dateString, 0, 40, 0);
 }
-void keyDown(unsigned int key){ }
+void keyDown(unsigned int key){
+	if(key == 'm'){
+		if(keyboard[RETURN_KEY]) month--;
+		else month = (month+1)%12;
+	}
+	if(key == 'y'){
+		if(keyboard[RETURN_KEY]) year--;
+		else year++;
+	}
+	if(key == 'd'){
+		if(keyboard[RETURN_KEY]) day = (day-1)%30;
+		else day = (day+1)%30;
+	}
+	if(key == 'h'){
+		if(keyboard[RETURN_KEY]) hour = (hour-1)%30;
+		else hour = (hour+1)%30;
+	}
+	if(key == 'n'){
+		if(keyboard[RETURN_KEY]) minute = (minute-1)%30;
+		else minute = (minute+1)%30;
+	}
+}
 void keyUp(unsigned int key){ }
 void mouseDown(unsigned int button){ }
 void mouseUp(unsigned int button){ }
