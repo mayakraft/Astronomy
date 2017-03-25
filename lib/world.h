@@ -47,7 +47,7 @@ static float MOUSE_SENSITIVITY = 0.333f;
 static float WALK_INTERVAL = 0.077f;  // WALKING SPEED. @ 60 UPS (updates/sec), walk speed (units/sec) = INTERVAL * UPS
 static float ZOOM_SPEED = 0.05f;
 // WINDOW size upon boot
-static int WIDTH = 800;  // (readonly) set these values here
+static int WIDTH = 1200;  // (readonly) set these values here
 static int HEIGHT = 600; // (readonly) setting during runtime will not re-size window
 static unsigned char FULLSCREEN = 0;  // fullscreen:1   window:0
 // INPUT
@@ -70,11 +70,11 @@ static float ZOOM_RADIX = 3;
 static unsigned char GROUND = 1;  // a 2D grid
 static unsigned char GRID = 1;    // a 3D grid
 // PERSPECTIVE
-enum{  FPP,  POLAR,  ORTHO  } ; // first persion, polar, orthographic
+enum{  EMPTY,  FPP,  POLAR,  ORTHO  } ; // first persion, polar, orthographic
 static unsigned char PERSPECTIVE = FPP;  // initialize point of view in this state
 // details of each perspective
-float polarLookAt[3] = {0.0f, 0.0f, 0.0f}; // x, y, z  // location of the eye
-float lookOrientation[3] = {0.0f, 0.0f, 7.0f}; // azimuth, altitude, zoom/FOV (log)
+float polarLookAt[3] = {0.0f, 0.0f, 0.0f}; // x, y, z  // of the eye
+float lookOrientation[3] = {0.0f, 0.0f, 3.5f}; // azimuth, altitude, zoom/FOV (log)
 float orthoFrame[4] = {0.0f, 0.0f, 4.0f, 3.0f}; // x, y, width, height
 // time
 static time_t startTime;
@@ -86,6 +86,7 @@ void typicalOpenGLSettings();  // colors, line width, glEnable
 void reshapeWindow(int windowWidth, int windowHeight);  // contains viewport and frustum calls
 void rebuildProjection();  // calls one of the three functions below
 // CHANGE PERSPECTIVE
+void emptyPerspective();
 void firstPersonPerspective();//float azimuth, float altitude, float zoom);
 void polarPerspective(float x, float y, float z);  //float azimuth, float altitude, float zoom);
 void orthoPerspective(float x, float y, float width, float height);
@@ -222,6 +223,8 @@ void reshapeWindow(int windowWidth, int windowHeight){
 }
 void rebuildProjection(){
 	switch(PERSPECTIVE){
+		case EMPTY:
+			emptyPerspective(); break;
 		case FPP:
 			firstPersonPerspective(); break;
 		case POLAR:
@@ -229,6 +232,20 @@ void rebuildProjection(){
 		case ORTHO:
 			orthoPerspective(orthoFrame[0], orthoFrame[1], orthoFrame[2], orthoFrame[3]); break;
 	}
+}
+void emptyPerspective(){
+	PERSPECTIVE = EMPTY;
+	float a = (float)min(WIDTH, HEIGHT) / max(WIDTH, HEIGHT);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	float eFOV = 0.01;
+	if(WIDTH < HEIGHT) glFrustum (-eFOV, eFOV, -eFOV/a, eFOV/a, NEAR_CLIP, FAR_CLIP);
+	else               glFrustum (-eFOV/a, eFOV/a, -eFOV, eFOV, NEAR_CLIP, FAR_CLIP);
+	// change POV
+	glTranslatef(0, 0, -lookOrientation[2]*10);
+	// glRotatef(-lookOrientation[1], 1, 0, 0);
+	// glRotatef(-lookOrientation[0], 0, 0, 1);
+	glMatrixMode(GL_MODELVIEW);
 }
 void firstPersonPerspective(){
 	PERSPECTIVE = FPP;
@@ -472,17 +489,14 @@ void moveOriginWithArrowKeys(){
 }
 static int mouseDragStartX, mouseDragStartY;
 void mouseUpdatePerspective(int dx, int dy){
+	lookOrientation[0] += (dx * MOUSE_SENSITIVITY);
+	lookOrientation[1] += (dy * MOUSE_SENSITIVITY);
+	// lookOrientation[2] = 0.0;
 	switch(PERSPECTIVE){
 		case FPP:
-			lookOrientation[0] += (dx * MOUSE_SENSITIVITY);
-			lookOrientation[1] += (dy * MOUSE_SENSITIVITY);
-			// lookOrientation[2] = 0.0;
 			firstPersonPerspective();
 		break;
 		case POLAR:
-			lookOrientation[0] += (dx * MOUSE_SENSITIVITY);
-			lookOrientation[1] += (dy * MOUSE_SENSITIVITY);
-			// lookOrientation[2] = 0.0;
 			polarPerspective(polarLookAt[0], polarLookAt[1], polarLookAt[2]);
 			break;
 		case ORTHO:
@@ -738,8 +752,8 @@ void draw3DAxesLines(float x, float y, float z, float scale){
 	glPopMatrix();
 }
 void drawUVSphereLines(){
-	float a1 = 0.33;
-	float a2 = 0.166;
+	// float a1 = 0.33;
+	// float a2 = 0.166;
 	glPushMatrix();
 		// equator
 		// glColor4f(1.0, 1.0, 1.0, a1);
@@ -1069,8 +1083,8 @@ void mat4x4Mult(const float *a, const float *b, float *c){
 	c[14] = a[12] * b[2] + a[13] * b[6] + a[14] * b[10] + a[15] * b[14]; 
 	c[15] = a[12] * b[3] + a[13] * b[7] + a[14] * b[11] + a[15] * b[15]; 
 }
-void mat4x4MultFast(const float *a, const float *b, float *result){
-	// this is counting on a != b != c   eg: cannot do mat4x4MultFast(a, b, a);
+void mat3x3MultFast(const float *a, const float *b, float *result){
+	// this is counting on a != b != c   eg: cannot do mat3x3MultFast(a, b, a);
 	result[0] = a[0] * b[0] + a[1] * b[3] + a[2] * b[6];
 	result[1] = a[0] * b[1] + a[1] * b[4] + a[2] * b[7];
 	result[2] = a[0] * b[2] + a[1] * b[5] + a[2] * b[8];
@@ -1082,9 +1096,9 @@ void mat4x4MultFast(const float *a, const float *b, float *result){
 	result[8] = a[6] * b[2] + a[7] * b[5] + a[8] * b[8];
 }
 void mat3x3Mult(const float *a, const float *b, float *result) {
-	float c[16];
-	mat4x4MultFast(a, b, c);
-	memcpy(result, c, sizeof(float)*16);
+	float c[9];
+	mat3x3MultFast(a, b, c);
+	memcpy(result, c, sizeof(float)*9);
 }
 void makeMat3XRot(float *m, float angle){
 	m[0] = 1;	m[1] = 0;			m[2] = 0;

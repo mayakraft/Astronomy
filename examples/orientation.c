@@ -1,11 +1,12 @@
 #include "../lib/world.h"
 #include "../stargaze.h"
 
-void drawUnitGlobe(float red, float green, float blue);
+void drawUnitGimbal(float red, float green, float blue);
 void drawWorldAxes();
 
 float orientationMatrix[16];
 float axialTiltMatrix[9];
+float geographicLatMatrix[9];
 
 float observerLat = 18.45;  // degrees
 float observerLon = -66.0;  // degrees
@@ -17,7 +18,7 @@ float observerLon = -66.0;  // degrees
 // eclipticToHorizontal(eclipticLat, eclipticLon, observerLat, siderealDeg, &azimuth, &altitude);
 
 void setup(){
-	PERSPECTIVE = POLAR;
+	emptyPerspective();
 	GROUND = 0;
 	GRID = 0;
 	setMat4Identity(orientationMatrix);
@@ -37,29 +38,101 @@ void update(){
 	// multiply matrices together
 	float matrixProduct[9];
 	mat3x3Mult(siderealMatrix, axialTiltMatrix, matrixProduct);
+
+	generateGeographicLatitudeMatrix(geographicLatMatrix, observerLat);
 	// convert astronomy matrix to OpenGL matrix
-	mat3ToMat4(matrixProduct, orientationMatrix);
+	mat3ToMat4(siderealMatrix, orientationMatrix);
 }
+
 void draw3D(){
+	// glPushMatrix();
+		// glScalef(5.0, 5.0, 5.0);
+	// glPopMatrix();
+
 	glPushMatrix();
-		glScalef(5.0, 5.0, 5.0);
-		label3DAxes(1);
+	float sp = 4;
+
+// TOP ROW
+		// glPushMatrix();
+		// 	glTranslatef(-sp, sp, 0);
+		// 	glRotatef(-lookOrientation[1], 1, 0, 0);
+		// 	glRotatef(-lookOrientation[0], 0, 1, 0);
+		// 	drawUnitGimbal(1.0, 1.0, 1.0);
+		// glPopMatrix();
+
+		// glPushMatrix();
+		// 	glTranslatef(0, sp, 0);
+		// 	glRotatef(-lookOrientation[1], 1, 0, 0);
+		// 	glRotatef(-lookOrientation[0], 0, 1, 0);
+		// 	drawUnitGimbal(1.0, 1.0, 1.0);
+		// glPopMatrix();
+
+		// glPushMatrix();
+		// 	glTranslatef(sp, sp, 0);
+		// 	glRotatef(-lookOrientation[1], 1, 0, 0);
+		// 	glRotatef(-lookOrientation[0], 0, 1, 0);
+		// 	drawUnitGimbal(1.0, 1.0, 1.0);
+		// glPopMatrix();
+
+// MIDDLE ROW
+
+		glPushMatrix();
+			glTranslatef(-sp, 0, 0);
+			glRotatef(-90, 1, 0, 0);
+			glRotatef(-lookOrientation[1], 1, 0, 0);
+			glRotatef(-lookOrientation[0], 0, 0, 1);
+			drawUnitGimbal(1.0, 1.0, 1.0);
+			label3DAxes(1);
+		glPopMatrix();
+
+		glPushMatrix();
+			glRotatef(-90, 1, 0, 0);
+			glRotatef(-lookOrientation[1], 1, 0, 0);
+			glRotatef(-lookOrientation[0], 0, 0, 1);
+			drawUnitGimbal(1.0, 1.0, 1.0);
+			glMultMatrixf(orientationMatrix);
+			drawUnitGimbal(0.5, 0.5, 1.0);
+		glPopMatrix();
+
+		glPushMatrix();
+			glTranslatef(sp, 0, 0);
+			glRotatef(-90, 1, 0, 0);
+			glRotatef(-lookOrientation[1], 1, 0, 0);
+			glRotatef(-lookOrientation[0], 0, 0, 1);
+			drawUnitGimbal(1.0, 1.0, 1.0);
+			float orient2[16];
+			mat3ToMat4(geographicLatMatrix, orient2);
+			glMultMatrixf(orient2);
+			drawUnitGimbal(1.0, 0.0, 0.0);
+		glPopMatrix();
+
+// BOTTOM ROW
+		// glPushMatrix();
+		// 	glTranslatef(-sp, -sp, 0);
+		// 	glRotatef(-lookOrientation[1], 1, 0, 0);
+		// 	glRotatef(-lookOrientation[0], 0, 1, 0);
+		// 	drawUnitGimbal(1.0, 1.0, 1.0);
+		// glPopMatrix();
+
+		// glPushMatrix();
+		// 	glTranslatef(0, -sp, 0);
+		// 	glRotatef(-lookOrientation[1], 1, 0, 0);
+		// 	glRotatef(-lookOrientation[0], 0, 1, 0);
+		// 	drawUnitGimbal(1.0, 1.0, 1.0);
+		// glPopMatrix();
+
+		// glPushMatrix();
+		// 	glTranslatef(sp, -sp, 0);
+		// 	glRotatef(-lookOrientation[1], 1, 0, 0);
+		// 	glRotatef(-lookOrientation[0], 0, 1, 0);
+		// 	drawUnitGimbal(1.0, 1.0, 1.0);
+		// glPopMatrix();
+
 	glPopMatrix();
-	glPushMatrix();
-		glScalef(3.0, 3.0, 3.0);
-		drawUnitGlobe(0.5, 1.0, 0.0);
-		glColor4f(0.5, 1.0, 0.0, 1.0);
-		draw3DAxesLines(0,0,0,1.5);
-	glPopMatrix();
-	glPushMatrix();
-		glMultMatrixf(orientationMatrix);
-		glScalef(3.0, 3.0, 3.0);
-		drawUnitGlobe(0.2, 0.2, 1.0);
-		glColor4f(0.2, 0.2, 1.0, 1.0);
-		draw3DAxesLines(0,0,0,1.5);
-	glPopMatrix();
-	drawWorldAxes();
+
 }
+
+
 void draw2D(){
 	char string[35];
 	sprintf(string, "Lat:%.2f, Lon:%.2f", observerLat, observerLon);   
@@ -71,7 +144,7 @@ void mouseDown(unsigned int button){ }
 void mouseUp(unsigned int button){ }
 void mouseMoved(int x, int y){ }
 
-void drawUnitGlobe(float red, float green, float blue){
+void drawUnitGimbal(float red, float green, float blue){
 	float a1 = 1.0;
 	float a2 = 0.333;
 	glPushMatrix();
@@ -107,8 +180,12 @@ void drawUnitGlobe(float red, float green, float blue){
 			glRotatef(30, 1, 0, 0);
 			drawUnitCircle(0, 0, 0);
 	glPopMatrix();
+	glColor4f(red, green, blue, a1);
+	draw3DAxesLines(0,0,0,1.5);
 	glColor4f(1.0, 1.0, 1.0, 1.0);
 }
+
+
 
 void drawWorldAxes(){
 	int scale = 10;

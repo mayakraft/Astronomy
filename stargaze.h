@@ -68,7 +68,7 @@ void generateAxialTiltMatrix(float* result){
 // for multiplying against declination and right ascention coordinates
 // and getting ecliptic latitude and longitude coordinates
 	// Earth's axial tilt
-	float angle = EARTH_AX_DEG / 180.0 * M_PI;
+	float angle = EARTH_AX_DEG * D2R;
 	result[0] = 1;   result[1] = 0;           result[2] = 0;
 	result[3] = 0;   result[4] = cos(angle);  result[5] = sin(angle);
 	result[6] = 0;   result[7] = -sin(angle); result[8] = cos(angle);
@@ -78,7 +78,7 @@ void generateAxialTiltMatrixPrime(float* result){
 // for multiplying against ecliptic latitude and longitude coordinates
 // and getting declination and right ascention coordinates
 	// Earth's axial tilt
-	float angle = EARTH_AX_DEG / 180.0 * M_PI;
+	float angle = EARTH_AX_DEG * D2R;
 	result[0] = 1;   result[1] = 0;           result[2] = 0;
 	result[3] = 0;   result[4] = cos(angle);  result[5] = -sin(angle);
 	result[6] = 0;   result[7] = sin(angle);  result[8] = cos(angle);
