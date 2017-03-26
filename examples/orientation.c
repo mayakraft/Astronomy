@@ -36,6 +36,13 @@ void update(){
 	} if(keyboard['[']){
 		observerLon -= 0.5;
 	}
+
+	if(keyboard[';']){
+		observerLat += 0.5;
+	} if(keyboard['\'']){
+		observerLat -= 0.5;
+	}
+
 }
 
 void draw3D(){
@@ -94,8 +101,6 @@ void draw3D(){
 			glRotatef(-lookOrientation[1], 1, 0, 0);
 			glRotatef(-lookOrientation[0], 0, 0, 1);
 			drawUnitGimbal(0.5, 0.5, 0.5);
-			float geographicLatMatrix[9];
-			generateGeographicLatitudeMatrix(geographicLatMatrix, observerLat);
 			glPushMatrix();
 				float leftCenterMatrix[16];
 				float siderealDateMatrix[9];
@@ -122,37 +127,38 @@ void draw3D(){
 
 		glPushMatrix();
 			glTranslatef(0, -sp*0.5, 0);
-			text("Sidereal Time + Longitude", -1.0, -1.6, 0);
-			text("rotate around Z", -0.8, -1.8, 0);
+			text("Latitude N 45", -1.0, 1.6, 0);
 			glRotatef(-90, 1, 0, 0);
 			glRotatef(-lookOrientation[1], 1, 0, 0);
 			glRotatef(-lookOrientation[0], 0, 0, 1);
 			drawUnitGimbal(0.5, 0.5, 0.5);
 			glPushMatrix();
-				float orientationMatrix[16];
-				float siderealMatrix[9];
-				double J2000 = J2000DaysFromUTCNow();
-				double sidereal = localMeanSiderealTime(J2000, observerLon);
-				generateSiderealTimeMatrix(siderealMatrix, sidereal);
-				// multiply matrices together
-				float matrixProduct[9];
-				mat3x3Mult(siderealMatrix, axialTiltMatrix, matrixProduct);
-				mat3ToMat4(siderealMatrix, orientationMatrix);
-				glMultMatrixf(orientationMatrix);
-				drawUnitGimbal(0.3, 0.3, 1.0);
+				float geographicLat1Matrix[9];
+				generateGeographicLatitudeMatrix(geographicLat1Matrix, 45);
+				float bottomMidMatrix[16];
+				mat3ToMat4(geographicLat1Matrix, bottomMidMatrix);
+				glMultMatrixf(bottomMidMatrix);
+				drawUnitGimbal(1.0, 0.0, 0.0);
 			glPopMatrix();
 		glPopMatrix();
 
 		glPushMatrix();
 			glTranslatef(sp, -sp*0.5, 0);
+			char latString[35];
+			sprintf(latString, "Latitude %.2f", observerLat);   
+			text(latString, -1.0, 1.6, 0);
 			glRotatef(-90, 1, 0, 0);
 			glRotatef(-lookOrientation[1], 1, 0, 0);
 			glRotatef(-lookOrientation[0], 0, 0, 1);
 			drawUnitGimbal(0.5, 0.5, 0.5);
-			float orient2[16];
-			mat3ToMat4(geographicLatMatrix, orient2);
-			glMultMatrixf(orient2);
-			drawUnitGimbal(1.0, 0.0, 0.0);
+			glPushMatrix();
+				float geographicLat2Matrix[9];
+				generateGeographicLatitudeMatrix(geographicLat2Matrix, observerLat);
+				float bottomRightMatrix[16];
+				mat3ToMat4(geographicLat2Matrix, bottomRightMatrix);
+				glMultMatrixf(bottomRightMatrix);
+				drawUnitGimbal(1.0, 0.0, 0.0);
+			glPopMatrix();
 		glPopMatrix();
 
 	glPopMatrix();

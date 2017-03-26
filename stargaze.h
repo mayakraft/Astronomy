@@ -168,7 +168,6 @@ void eclipticToHorizontalWithDate(float eclipticLat, float eclipticLon, float ob
 	eclipticToHorizontal(eclipticLon, eclipticLat, observerLat, sidereal, azimuth, altitude);
 }
 
-
 //90 degree rotation around Y (second axis)
 //180 degree rotation around Z (third axis)
 float phoneToHorizonal3x3[9] = {

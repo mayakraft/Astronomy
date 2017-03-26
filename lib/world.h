@@ -238,11 +238,11 @@ void emptyPerspective(){
 	float a = (float)min(WIDTH, HEIGHT) / max(WIDTH, HEIGHT);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	float eFOV = 0.01;
+	float eFOV = 0.001;
 	if(WIDTH < HEIGHT) glFrustum (-eFOV, eFOV, -eFOV/a, eFOV/a, NEAR_CLIP, FAR_CLIP);
 	else               glFrustum (-eFOV/a, eFOV/a, -eFOV, eFOV, NEAR_CLIP, FAR_CLIP);
 	// change POV
-	glTranslatef(0, 0, -lookOrientation[2]*10);
+	glTranslatef(0, 0, -lookOrientation[2]*100);
 	// glRotatef(-lookOrientation[1], 1, 0, 0);
 	// glRotatef(-lookOrientation[0], 0, 0, 1);
 	glMatrixMode(GL_MODELVIEW);
