@@ -35,6 +35,18 @@ double localMeanSiderealTime(double J2000Day, double longitude){
 	return mod360(280.46061837 + 360.98564736629 * J2000Day + LTR + longitude);
 }
 
+// both of the above, copied, hard-coded with now time, taken from computer's clock
+double greenwichMeanSiderealTimeForNow(){
+	double J2000Day = J2000DaysFromUTCNow();
+	double LTR = 0.000388 * pow(J2000Day/36525.0, 2);
+	return mod360(280.46061837 + 360.98564736629 * J2000Day + LTR);
+}
+double localMeanSiderealTimeForNow(double longitude){
+	double J2000Day = J2000DaysFromUTCNow();
+	double LTR = 0.000388 * pow(J2000Day/36525.0, 2);
+	return mod360(280.46061837 + 360.98564736629 * J2000Day + LTR + longitude);
+}
+
 // incorporates the wobble caused by the moon's pull, the barycenter is not at the center of the Earth
 double apparentSiderealTime(double J2000Day){
 	// format time

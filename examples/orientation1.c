@@ -53,26 +53,12 @@ void draw3D(){
 // TOP ROW
 		glPushMatrix();
 			glTranslatef(-sp, sp*0.5, 0);
-			text("Earth axial tilt", -0.8, -1.6, 0);
-			text("blue=prime", -0.8, -1.8, 0);
-			text("rotate around X", -0.8, -2.0, 0);
+			// text("Earth", -1.0, 1.6, 0);
 			glRotatef(-90, 1, 0, 0);
 			glRotatef(-lookOrientation[1], 1, 0, 0);
 			glRotatef(-lookOrientation[0], 0, 0, 1);
 			label3DAxes(1);
 			drawUnitGimbal(0.5, 0.5, 0.5);
-			glPushMatrix();
-				float axialTilt16[16];
-				mat3ToMat4(axialTiltMatrix, axialTilt16);
-				glMultMatrixf(axialTilt16);
-				drawUnitGimbal(1.0, 0.0, 0.0);
-			glPopMatrix();
-			glPushMatrix();
-				float axialTiltPrime16[16];
-				mat3ToMat4(axialTiltMatrixPrime, axialTiltPrime16);
-				glMultMatrixf(axialTiltPrime16);
-				drawUnitGimbal(0.3, 0.3, 1.0);
-			glPopMatrix();
 		glPopMatrix();
 
 		glPushMatrix();
@@ -117,12 +103,26 @@ void draw3D(){
 
 		glPushMatrix();
 			glTranslatef(-sp, -sp*0.5, 0);
-			// text("Earth", -1.0, 1.6, 0);
+			text("Earth axial tilt", -0.8, 1.6, 0);
+			text("blue=prime", -0.8, 1.8, 0);
+			text("rotate around X", -0.8, 2.0, 0);
 			glRotatef(-90, 1, 0, 0);
 			glRotatef(-lookOrientation[1], 1, 0, 0);
 			glRotatef(-lookOrientation[0], 0, 0, 1);
 			label3DAxes(1);
 			drawUnitGimbal(0.5, 0.5, 0.5);
+			glPushMatrix();
+				float axialTilt16[16];
+				mat3ToMat4(axialTiltMatrix, axialTilt16);
+				glMultMatrixf(axialTilt16);
+				drawUnitGimbal(1.0, 0.0, 0.0);
+			glPopMatrix();
+			glPushMatrix();
+				float axialTiltPrime16[16];
+				mat3ToMat4(axialTiltMatrixPrime, axialTiltPrime16);
+				glMultMatrixf(axialTiltPrime16);
+				drawUnitGimbal(0.3, 0.3, 1.0);
+			glPopMatrix();
 		glPopMatrix();
 
 		glPushMatrix();
